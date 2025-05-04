@@ -18,6 +18,7 @@ const connect = async () => {
     }
 };
 
+
 connect();
 
 const query = async (text, params) => {
@@ -31,4 +32,5 @@ const query = async (text, params) => {
 
 module.exports = {
     query,
+
 };
