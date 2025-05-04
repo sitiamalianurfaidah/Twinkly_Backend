@@ -15,10 +15,14 @@ exports.registerUser = async (req, res) => {
     if (!emailRegex.test(email)) {
         return baseResponse(res, false, 400, "Invalid email format", null);
     }
-
     if (!passwordRegex.test(password)) {
-        return baseResponse(res, false, 400, "Invalid password format", null);
+        return baseResponse(res, false, 400, 
+            "Password must be at least 8 characters long, contain at least one number and one special character (@, #, $, %, ^, &, *)", 
+            null
+        );
     }
+    
+    
 
     try {
         const existingUser = await userRepository.getUser(email);
@@ -26,7 +30,7 @@ exports.registerUser = async (req, res) => {
         if (existingUser) {
             return baseResponse(res, false, 400, "Email already used", null);
         }
-        //NO 2
+
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const newUser = {
@@ -34,14 +38,13 @@ exports.registerUser = async (req, res) => {
             email,
             password: hashedPassword,   
             name,
-            balance: 0,
             created_at: new Date(),
         };
 
         const createdUser = await userRepository.createUser(newUser);
-        return baseResponse(res, true, 201, "User created", newUser);
+        return baseResponse(res, true, 201, "User created", createdUser);
     } catch (error) {
-        return baseResponse(res, false, 500, "User not found", null);
+        return baseResponse(res, false, 500, "Internal server error", null);
     } 
 };
 
@@ -50,8 +53,10 @@ exports.loginUser = async (req, res) => {
 
     try {
         const user = await userRepository.getUser(email);
-
-        // NO 3: Bandingkan password hash dengan input user
+        if (!user) {
+            return baseResponse(res, false, 401, "Invalid email or password", null);
+        }
+        
         const passwordMatch = await bcrypt.compare(password, user.password);
         if (!passwordMatch) {
             return baseResponse(res, false, 401, "Invalid email or password", null);
@@ -59,7 +64,8 @@ exports.loginUser = async (req, res) => {
 
         baseResponse(res, true, 200, "Login success", user);
     } catch (error) {
-        baseResponse(res, false, 500, "User not found", null);
+        console.error(error);
+        baseResponse(res, false, 500, "Internal server error", error);
     }
 };
 
@@ -75,30 +81,6 @@ exports.getUser = async (req, res) => {
     }
 };
 
-exports.updateUser = async (req, res) => {
-    const { id, email, password, name } = req.body;
-    if (!id || !email || !password || !name) {
-        return baseResponse(res, false, 400, "Missing required fields", null);
-    }
-
-    try {
-        // Hash password baru sebelum update
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const updatedUser = await userRepository.updateUser({ 
-            id, 
-            email, 
-            password: hashedPassword,  // Simpan password yang sudah di-hash
-            name 
-        });
-        if (!updatedUser) {
-            return baseResponse(res, false, 404, "User not found", null);
-        }
-        baseResponse(res, true, 200, "User updated", updatedUser);
-    } catch (error) {
-        baseResponse(res, false, 500, "Error updating user", error);
-    }
-};
-
 exports.deleteUser = async (req, res) => {
     try {
         const deletedUser = await userRepository.deleteUser(req.params.id);
@@ -110,23 +92,3 @@ exports.deleteUser = async (req, res) => {
         baseResponse(res, false, 500, "Error deleting user", error);
     }
 };
-
-exports.topUpBalance = async (req, res) => {
-    const { email, amount } = req.body;
-
-    try {
-        const user = await userRepository.getUser(email);
-        if (!user) {
-            return baseResponse(res, false, 404, "User not found", null);
-        }
-
-        const newBalance = user.balance + amount;
-        await userRepository.updateBalance(email, newBalance);
-
-        baseResponse(res, true, 200, "Balance updated", { email, newBalance });
-    } catch (error) {
-        baseResponse(res, false, 500, "User not found", null);
-    }
-};
-
-

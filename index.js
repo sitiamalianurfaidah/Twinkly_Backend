@@ -17,17 +17,17 @@ app.use(cors(corsOptions));
 
 app.use(express.json());
 
-app.use('/store', require('./src/routes/store.route'));
-app.use('/user', require('./src/routes/user.route'));
-app.use('/item', require('./src/routes/item.route'));
-app.use('/transaction', require('./src/routes/transaction.route'));
-app.get('/', (req, res) => {
-    res.json({ message: 'CORS berhasil dikonfigurasi!' });
-});
 
 app.use((req, res, next) => {
     console.log('CORS request:', req.method, req.url);
     next();
+});
+
+app.use('/user', require('./src/routes/user.route'));
+app.use('/affirmations', require('./src/routes/affirmations.route'));
+
+app.get('/', (req, res) => {
+    res.json({ message: 'CORS berhasil dikonfigurasi!' });
 });
 
 app.listen(PORT, () => {

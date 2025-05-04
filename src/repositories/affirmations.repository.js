@@ -1,0 +1,53 @@
+const pool = require("../database/pg.database");
+
+exports.createAffirmation = async (affirmation) => {
+    const { id, message, user_id, created_at } = affirmation;
+
+    const query = `
+        INSERT INTO affirmations (id, message, user_id, created_at)
+        VALUES ($1, $2, $3, $4)
+        RETURNING *;
+    `;
+    const values = [id, message, user_id, created_at];
+
+    try {
+        const result = await pool.query(query, values);
+        return result.rows[0];
+    } catch (error) {
+        console.error("Error in getAffirmationsByUserId:", error);
+        throw error;
+    }
+};
+
+exports.getAllAffirmations = async () => {
+    const query = `SELECT * FROM affirmations ORDER BY created_at DESC;`;
+
+    try {
+        const result = await pool.query(query);
+        return result.rows;
+    } catch (error) {
+        throw error;
+    }
+};
+
+exports.getAffirmationsByUserId = async (user_id) => {
+    const query = `SELECT * FROM affirmations WHERE user_id = $1 ORDER BY created_at DESC;`;
+
+    try {
+        const result = await pool.query(query, [user_id]);
+        return result.rows;
+    } catch (error) {
+        throw error;
+    }
+};
+
+exports.deleteAffirmation = async (id) => {
+    const query = `DELETE FROM affirmations WHERE id = $1 RETURNING *;`;
+
+    try {
+        const result = await pool.query(query, [id]);
+        return result.rows[0] || null;
+    } catch (error) {
+        throw error;
+    }
+};

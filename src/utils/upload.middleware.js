@@ -2,13 +2,11 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 
-// Pastikan folder uploads ada
 const uploadDir = path.join(__dirname, "../uploads");
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
 }
 
-// Konfigurasi Multer
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, uploadDir); // Simpan di folder src/uploads/
@@ -19,6 +17,7 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({
+    storage,
     limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
 });
 
