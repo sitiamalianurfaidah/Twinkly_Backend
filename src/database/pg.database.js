@@ -1,5 +1,4 @@
 require("dotenv").config();
-
 const { Pool } = require("pg");
 
 const pool = new Pool({
@@ -7,31 +6,23 @@ const pool = new Pool({
     ssl: {
         rejectUnauthorized: false,
     },
-});
+    });
 
-const connect = async () => {
-    try {
-        await pool.connect();
-        console.log("Connected to the database");
-    } catch (error) {
-        console.error("Error connecting to the database", error);
-    }
-};
+    // Test koneksi ringan, tidak force connect
+    pool.query("SELECT 1")
+    .then(() => console.log("Connected to the database"))
+    .catch((err) => console.error("Database connection failed", err));
 
-
-connect();
-
-const query = async (text, params) => {
+    const query = async (text, params) => {
     try {
         const res = await pool.query(text, params);
         return res;
     } catch (error) {
         console.error("Error executing query", error);
     }
-}
+    };
 
-module.exports = {
+    module.exports = {
     query,
     pool,
-
 };
