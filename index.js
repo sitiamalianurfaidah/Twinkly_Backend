@@ -22,7 +22,6 @@ app.use((req, res, next) => {
     next();
 });
 
-app.use('/user', require('./src/routes/user.route'));
 app.use('/affirmations', require('./src/routes/affirmations.route'));
 
 app.get('/', (req, res) => {

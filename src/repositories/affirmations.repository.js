@@ -1,14 +1,14 @@
 const pool = require("../database/pg.database");
 
 exports.createAffirmation = async (affirmation) => {
-    const { id, message, user_id, created_at } = affirmation;
+    const { id, message, created_at } = affirmation;
 
     const query = `
-        INSERT INTO affirmations (id, message, user_id, created_at)
-        VALUES ($1, $2, $3, $4)
+        INSERT INTO affirmations (id, message, created_at)
+        VALUES ($1, $2, $3)
         RETURNING *;
     `;
-    const values = [id, message, user_id, created_at];
+    const values = [id, message, created_at];
 
     try {
         const result = await pool.query(query, values);
@@ -24,17 +24,6 @@ exports.getAllAffirmations = async () => {
 
     try {
         const result = await pool.query(query);
-        return result.rows;
-    } catch (error) {
-        throw error;
-    }
-};
-
-exports.getAffirmationsByUserId = async (user_id) => {
-    const query = `SELECT * FROM affirmations WHERE user_id = $1 ORDER BY created_at DESC;`;
-
-    try {
-        const result = await pool.query(query, [user_id]);
         return result.rows;
     } catch (error) {
         throw error;

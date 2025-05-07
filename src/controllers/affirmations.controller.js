@@ -4,21 +4,16 @@ const baseResponse = require("../utils/baseResponse.utils");
 const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 exports.createAffirmation = async (req, res) => {
-    const { message, user_id } = req.body;
+    const { message } = req.body;
 
-    if (!message || !user_id) {
-        return baseResponse(res, false, 400, "Message and user_id are required, null");
-    }
-
-    if (!uuidRegex.test(user_id)) {
-        return baseResponse(res, false, 400, "Invalid user ID format", null);
+    if (!message) {
+        return baseResponse(res, false, 400, "Message is required, null");
     }
 
     try {
         const newAffirmation = await affirmationRepository.createAffirmation({
             id: uuidv4(),
             message,
-            user_id,
             created_at: new Date(),
         });
         return baseResponse(res, true, 201, "Affirmation created", newAffirmation);
@@ -31,21 +26,6 @@ exports.createAffirmation = async (req, res) => {
 exports.getAllAffirmations = async (req, res) => {
     try {
         const affirmations = await affirmationRepository.getAllAffirmations();
-        return baseResponse(res, true, 200, "Affirmations retrieved", affirmations);
-    } catch (error) {
-        return baseResponse(res, false, 500, "Error retrieving affirmations", { error: error.message });
-    }
-};
-
-exports.getAffirmationsByUserId = async (req, res) => {
-    const { user_id } = req.params;
-
-    if (!uuidRegex.test(user_id)) {
-        return baseResponse(res, false, 400, "Invalid user ID format", null);
-    }
-
-    try {
-        const affirmations = await affirmationRepository.getAffirmationsByUserId(user_id);
         return baseResponse(res, true, 200, "Affirmations retrieved", affirmations);
     } catch (error) {
         return baseResponse(res, false, 500, "Error retrieving affirmations", { error: error.message });
