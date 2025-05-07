@@ -6,7 +6,7 @@ const bcrypt = require("bcrypt");
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const passwordRegex = /^(?=.*\d)(?=.*[@#$%^&*])[A-Za-z\d@#$%^&*]{8,}$/;
 
-exports.registerUser = async (req, res) => {
+exports.signupUser = async (req, res) => {
     const { email, password, name } = req.body;
     
     if (!email || !password || !name) {
