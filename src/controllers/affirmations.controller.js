@@ -4,7 +4,7 @@ const baseResponse = require("../utils/baseResponse.utils");
 const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 exports.createAffirmation = async (req, res) => {
-    const { message } = req.body;
+    const { message, user_name } = req.body;
 
     if (!message) {
         return baseResponse(res, false, 400, "Message is required, null");
@@ -14,6 +14,7 @@ exports.createAffirmation = async (req, res) => {
         const newAffirmation = await affirmationRepository.createAffirmation({
             id: uuidv4(),
             message,
+            user_name: user_name || "Anonim", // fallback ke "Anonim" kalau kosong
             created_at: new Date(),
         });
         return baseResponse(res, true, 201, "Affirmation created", newAffirmation);

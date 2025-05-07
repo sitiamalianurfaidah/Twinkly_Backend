@@ -1,14 +1,14 @@
 const pool = require("../database/pg.database");
 
 exports.createAffirmation = async (affirmation) => {
-    const { id, message, created_at } = affirmation;
+    const { id, message, user_name, created_at } = affirmation;
 
     const query = `
-        INSERT INTO affirmations (id, message, created_at)
-        VALUES ($1, $2, $3)
+        INSERT INTO affirmations (id, message, user_name, created_at)
+        VALUES ($1, $2, $3, $4)
         RETURNING *;
     `;
-    const values = [id, message, created_at];
+    const values = [id, message, user_name, created_at];
 
     try {
         const result = await pool.query(query, values);
